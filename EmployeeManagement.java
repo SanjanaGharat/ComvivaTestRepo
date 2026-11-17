@@ -18,7 +18,9 @@ public class EmployeeManagement {
                 System.out.println("1. Add employee");
                 System.out.println("2. Display employees");
                 System.out.println("3. Search employee by ID");
-                System.out.println("4. Exit");
+                System.out.println("4. Update employee details");
+                System.out.println("5. Delete employee");
+                System.out.println("6. Exit");
                 System.out.print("Choose an option: ");
 
                 String choice = scanner.nextLine().trim();
@@ -33,11 +35,17 @@ public class EmployeeManagement {
                         searchEmployee(scanner);
                         break;
                     case "4":
+                        updateEmployee(scanner);
+                        break;
+                    case "5":
+                        deleteEmployee(scanner);
+                        break;
+                    case "6":
                         running = false;
                         System.out.println("Goodbye!");
                         break;
                     default:
-                        System.out.println("Invalid option. Please choose 1, 2, 3, or 4.");
+                        System.out.println("Invalid option. Please choose a number from 1 to 6.");
                 }
             }
         }
@@ -55,7 +63,7 @@ public class EmployeeManagement {
 
         String name = readRequiredText(scanner, "Enter name: ");
         String department = readRequiredText(scanner, "Enter department: ");
-        Double salary = readSalary(scanner);
+        Double salary = readSalary(scanner, "Enter salary: ");
         if (salary == null) {
             return;
         }
@@ -88,12 +96,55 @@ public class EmployeeManagement {
         if (employee == null) {
             System.out.println("No employee found with ID " + id + ".");
         } else {
-            System.out.println("Employee found:");
-            System.out.println("ID: " + employee.id);
-            System.out.println("Name: " + employee.name);
-            System.out.println("Department: " + employee.department);
-            System.out.printf("Salary: %.2f%n", employee.salary);
+            displayEmployee(employee);
         }
+    }
+
+    private static void updateEmployee(Scanner scanner) {
+        Integer id = readInteger(scanner, "Enter employee ID to update: ");
+        if (id == null) {
+            return;
+        }
+
+        Employee employee = employees.get(id);
+        if (employee == null) {
+            System.out.println("No employee found with ID " + id + ".");
+            return;
+        }
+
+        System.out.println("Enter the new details for employee ID " + id + ":");
+        String name = readRequiredText(scanner, "Enter name: ");
+        String department = readRequiredText(scanner, "Enter department: ");
+        Double salary = readSalary(scanner, "Enter salary: ");
+        if (salary == null) {
+            System.out.println("Update cancelled; employee details were not changed.");
+            return;
+        }
+
+        employees.put(id, new Employee(id, name, department, salary));
+        System.out.println("Employee details updated successfully.");
+    }
+
+    private static void deleteEmployee(Scanner scanner) {
+        Integer id = readInteger(scanner, "Enter employee ID to delete: ");
+        if (id == null) {
+            return;
+        }
+
+        Employee removed = employees.remove(id);
+        if (removed == null) {
+            System.out.println("No employee found with ID " + id + ".");
+        } else {
+            System.out.println("Employee deleted successfully.");
+        }
+    }
+
+    private static void displayEmployee(Employee employee) {
+        System.out.println("Employee details:");
+        System.out.println("ID: " + employee.id);
+        System.out.println("Name: " + employee.name);
+        System.out.println("Department: " + employee.department);
+        System.out.printf("Salary: %.2f%n", employee.salary);
     }
 
     private static Integer readInteger(Scanner scanner, String prompt) {
@@ -117,8 +168,8 @@ public class EmployeeManagement {
         }
     }
 
-    private static Double readSalary(Scanner scanner) {
-        System.out.print("Enter salary: ");
+    private static Double readSalary(Scanner scanner, String prompt) {
+        System.out.print(prompt);
         try {
             double salary = Double.parseDouble(scanner.nextLine().trim());
             if (Double.isFinite(salary) && salary >= 0) {
